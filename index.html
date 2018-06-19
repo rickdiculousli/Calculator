@@ -8,9 +8,12 @@
 </head>
 <body>
 	<div class="backboard">
-			<div class="display">123456789</div>
+			<div class="display">0</div>
 			<div class="controls">
 				<div class="nums">
+					<div class="row clrRow">
+						<button class='clr' value='clr' id='clr'>C</button>
+					</div>
 					<div class="row">
 						<button class='digit' value='7'>7</button>
 						<button class='digit' value='8'>8</button>
@@ -30,7 +33,7 @@
 					</div>
 
 					<div class="row">
-						<button class='digit' value='0'>0</button>
+						<button class='digit' value='0' id='zero'>0</button>
 						<button class='digit' id='point' value='.'>.</button>
 					</div>
 				</div>
@@ -41,15 +44,12 @@
 					<button class='op' value='*'>x</button>
 					<button class='op' value='/'>÷</button>
 					<button class='eq' value='='>=</button>
-					<button class='clr' value='clr'>C</button>
-
-
-
-
 				</div>
 			</div>
 	</div>
-
+	<p>designed and developed by 
+		<a href='https://github.com/rickdiculousli'>rickdiculousli</a>
+	</p>
 
 
 <script src='assets/script.js'></script>

@@ -1,35 +1,23 @@
+/**** designed by rickdiculousli ( http://github.com/rickdiculousli ) ****/
+//DOM ELEMENT VARIABLES
+const numsArray =  Array.from(document.querySelectorAll('.digit'));
+const opsArray = Array.from(document.querySelectorAll('.op'));
+const display = document.querySelector('.display');
+const equalsB = document.querySelector('.eq');
+const clrB = document.querySelector('.clr')
 
-// Browser Tests
-/*
-*console.log(add(1,-3));
-*console.log(subtract(3,1));
-*console.log(subtract(1,3));
-*console.log(subtract(1,-3));
-*console.log(multiply(3,7));
-*console.log(multiply(3,-7));
-*console.log(divide(10,5));
-*console.log(divide(10,3));
-*console.log(divide(10,-5));
-*console.log(divide(-10,5));
-*console.log('END');
-*/
+//LOGIC AND DISPLAY VARIABLES
+let displayTxt = '';
+let inputStr = '';
+let logicArray =[];  // Array of Strings!
+let flushScreen = false;
+let dotFlag= false;  // has decimal point or not.
 
 //OPERATIONS
-function add(a, b){
-	return a + b;
-}
-
-function subtract(a, b) {				
-	return a -b;
-}
-
-function multiply(a, b){
-	return a * b;
-}
-
-function divide(dend, dvsr){
-	return dend/dvsr;
-}
+function add(a, b){ return a + b;}
+function subtract(a, b) {return a -b;}
+function multiply(a, b){return a * b;}
+function divide(dend, dvsr){return dend/dvsr;}
 
 const operate = (f, a, b) => f(a ,b);
 
@@ -45,15 +33,11 @@ function Node(value, isOp = false){
 
 // Recursive solving of all Arithmetic by nodes.
 function opRecur(node){
-	console.log(node);
-	
 	if(node.children.length === 0 ) return Number(node.value);
-
 	return operate(
 					node.value,
 					opRecur(node.children[0]),
-					opRecur(node.children[1])
-					);
+					opRecur(node.children[1]));
 }
 
 // Main calculation function
@@ -104,74 +88,64 @@ function doLogic(array){
 		}
 
 	});
-
 	return opRecur(rootNode);
-
 }
 
-//DOM ELEMENT VARIABLES
-const numsArray =  Array.from(document.querySelectorAll('.digit'));
-const opsArray = Array.from(document.querySelectorAll('.op'));
-const display = document.querySelector('.display');
-const equalsB = document.querySelector('.eq');
-const clrB = document.querySelector('.clr')
-
-//LOGIC AND DISPLAY VARIABLES
-let displayTxt = '';
-let inputStr = '';
-let logicArray =[];  // Array of Strings!
-let flushScreen = false;
-let dotFlag= false;  // has decimal point or not.
 //Take in String and output as desired onto screen
 function displayScreen(txt, reset = false){
-	
 	if(reset){
 		dotFlag = false;
 		flushScreen = true;
 		displayTxt = txt.toString();
 		
 		//reset only deals with clear and result. Result needs trimming.
-		if(displayTxt.length > 9 && displayTxt.search(/\./) != -1){
-			let roundTo = 8 - displayTxt.search(/\./);
+		if(displayTxt.length > 18 && displayTxt.search(/\./) != -1){
+			let roundTo = 17 - displayTxt.search(/\./);
 			displayTxt = Number(displayTxt).toFixed(roundTo);
 		}
 
-	} else {
+	} 
+	else {
 		if(flushScreen){
 			displayTxt = '';
 			flushScreen = false;
 		}
-		displayTxt = displayTxt + txt;}
-	
+		displayTxt = displayTxt + txt;
+	}
 	display.textContent = displayTxt;
 }
-
-
 
 //EVENT HANDLING
 numsArray.forEach( button => button.addEventListener('click', (e) => {
 	console.log("pressed: " + e.target.value);
+	
+	//Only activate when display isn't full
+	if(display.textContent.toString().length < 18){
+		
+		// check for decimal point
+		if(e.target.id === 'point'){
+			if(dotFlag) return;
 
-	// check for decimal point
-	if(e.target.id === 'point'){
-		if(dotFlag) return;
+			dotFlag = true;
+		};
 
-		dotFlag = true;
-	};
-
-	inputStr = inputStr + e.target.value;
-	displayScreen(e.target.value);
+		inputStr = inputStr + e.target.value;
+		displayScreen(e.target.value);
+	}
 }));
 
 opsArray.forEach( button => button.addEventListener('click', (e) => {
 	console.log("pressed: " + e.target.value);
 
-	dotFlag = false;
-	logicArray[logicArray.length] = inputStr;
-	logicArray[logicArray.length] = e.target.value;
-	inputStr = '';
+	//Only activate when display isn't full
+	if(display.textContent.toString().length < 18){
+		dotFlag = false;
+		logicArray[logicArray.length] = inputStr;
+		logicArray[logicArray.length] = e.target.value;
+		inputStr = '';
 
-	displayScreen(e.target.value);
+		displayScreen(e.target.textContent);
+	}
 }));
 
 equalsB.addEventListener('click', (e) => {
