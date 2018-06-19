@@ -17,7 +17,6 @@
 //OPERATIONS
 function add(a, b){
 	return a + b;
-
 }
 
 function subtract(a, b) {				
@@ -34,7 +33,7 @@ function divide(dend, dvsr){
 
 const operate = (f, a, b) => f(a ,b);
 
-
+// Aritmetic Tree Node implementation.
 function Node(value, isOp = false){
 	this.value =value;
 	this.children=[];
@@ -44,8 +43,10 @@ function Node(value, isOp = false){
 	}
 }
 
+// Recursive solving of all Arithmetic by nodes.
 function opRecur(node){
 	console.log(node);
+	
 	if(node.children.length === 0 ) return Number(node.value);
 
 	return operate(
@@ -53,25 +54,21 @@ function opRecur(node){
 					opRecur(node.children[0]),
 					opRecur(node.children[1])
 					);
-	
-
-
 }
 
-
-
-
+// Main calculation function
 function doLogic(array){
 	// parse in array of Strings: [number, operator[,...]]
 	let rootNode = null;
 	let currNode = null;
 	let tempNode = null;
-	array.forEach(element => {
-		// if(rootNode === null) {
-		// 	rootNode = new Node(element);
-		// 	currNode = rootNode;
-		// };
 
+	// check for divide by 0
+	let indexDiv = array.indexOf('/');
+	if(indexDiv != -1 && array[indexDiv + 1] === '0') return "DIV BY ZERO!";
+
+	// Make add&sub nodes general (towards root), mul&div nodes specific (towards leaf)
+	array.forEach(element => {
 		switch(element){
 			case '+':
 				tempNode = new Node(add, true);
@@ -112,46 +109,93 @@ function doLogic(array){
 
 }
 
-//DOM ELEMENT VARS
+//DOM ELEMENT VARIABLES
 const numsArray =  Array.from(document.querySelectorAll('.digit'));
 const opsArray = Array.from(document.querySelectorAll('.op'));
 const display = document.querySelector('.display');
 const equalsB = document.querySelector('.eq');
 const clrB = document.querySelector('.clr')
 
-//LOGIC AND DISPLAY VARS
+//LOGIC AND DISPLAY VARIABLES
 let displayTxt = '';
 let inputStr = '';
 let logicArray =[];  // Array of Strings!
+let flushScreen = false;
+let dotFlag= false;  // has decimal point or not.
+//Take in String and output as desired onto screen
+function displayScreen(txt, reset = false){
+	
+	if(reset){
+		dotFlag = false;
+		flushScreen = true;
+		displayTxt = txt.toString();
+		
+		//reset only deals with clear and result. Result needs trimming.
+		if(displayTxt.length > 9 && displayTxt.search(/\./) != -1){
+			let roundTo = 8 - displayTxt.search(/\./);
+			displayTxt = Number(displayTxt).toFixed(roundTo);
+		}
+
+	} else {
+		if(flushScreen){
+			displayTxt = '';
+			flushScreen = false;
+		}
+		displayTxt = displayTxt + txt;}
+	
+	display.textContent = displayTxt;
+}
+
+
 
 //EVENT HANDLING
 numsArray.forEach( button => button.addEventListener('click', (e) => {
 	console.log("pressed: " + e.target.value);
 
-	inputStr = inputStr + e.target.value;
+	// check for decimal point
+	if(e.target.id === 'point'){
+		if(dotFlag) return;
 
-	displayTxt = displayTxt + e.target.value;
-	display.textContent = displayTxt;
+		dotFlag = true;
+	};
+
+	inputStr = inputStr + e.target.value;
+	displayScreen(e.target.value);
 }));
 
 opsArray.forEach( button => button.addEventListener('click', (e) => {
 	console.log("pressed: " + e.target.value);
 
+	dotFlag = false;
 	logicArray[logicArray.length] = inputStr;
 	logicArray[logicArray.length] = e.target.value;
 	inputStr = '';
 
-	displayTxt = displayTxt + e.target.textContent;
-	display.textContent = displayTxt;
+	displayScreen(e.target.value);
 }));
 
 equalsB.addEventListener('click', (e) => {
 	console.log("pressed: " + e.target.value);
 
-	logicArray[logicArray.length] = inputStr;
-	inputStr = '';
+	// only add to logic array if not empty. Else last input texting fails.
+	if (inputStr != '') logicArray[logicArray.length] = inputStr;
 
-	display.textContent = doLogic(logicArray);
+	//Restrict processing if last input was operation;
+	if(logicArray[logicArray.length -1].search(/[+\-*/]/) === -1){
+		inputStr = '';
+		displayScreen(doLogic(logicArray), true);
+
+	};
+	
+});
+
+clrB.addEventListener('click', (e) =>{
+	console.log("pressed: " + e.target.value);
+
+	logicArray = [];
+	inputStr = '';
+	displayScreen('0', true);
+
 });
 
 
